@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "580135829375",
+    "project_id": "meditrack-5ecbc",
+    "storage_bucket": "meditrack-5ecbc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:580135829375:android:aad0f3bf173adf5587e44a",
+        "android_client_info": {
+          "package_name": "com.example.maditrack"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "580135829375-0ppu665bkjjr97bntqq070si982lpgfi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtcykvq2eZDIqOqvLYa2454J07-JmV3tg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "580135829375-0ppu665bkjjr97bntqq070si982lpgfi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
