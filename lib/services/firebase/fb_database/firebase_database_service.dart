@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:maditrack/Models/journal_entry.dart';
 import 'package:maditrack/Models/person_model.dart';
-import 'package:maditrack/journal_entry.dart';
 
 class FirebaseDB {
   final _firestore = FirebaseFirestore.instance;
@@ -40,8 +40,8 @@ class FirebaseDB {
   //----------------- PERSON PROFILE -----------------
   //--------------------------------------------------
 
-  Future<void> setPersonProfile(String uid, PersonModel person) async {
-    await _firestore.collection('persons').doc(uid).set(person.toMap());
+  Future<void> setPersonProfile(PersonModel person) async {
+    await _firestore.collection('persons').doc(person.id).set(person.toMap());
   }
 
   Future<void> updatePersonProfile(String uid, PersonModel person) async {

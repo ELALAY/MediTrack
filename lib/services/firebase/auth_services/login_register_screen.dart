@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:maditrack/Models/person_model.dart';
 import 'package:maditrack/Onboarding/onboarding.dart';
+import 'package:maditrack/home.dart';
 import 'package:maditrack/services/firebase/fb_database/firebase_database_service.dart';
 import 'auth_service.dart';
 
@@ -15,75 +16,29 @@ class LoginOrRegister extends StatefulWidget {
 }
 
 class _LoginOrRegisterState extends State<LoginOrRegister> {
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
   final AuthService authService = AuthService();
   bool _isLoading = false;
 
-  // void login() async {
-  //   if (emailController.text.trim().isNotEmpty &&
-  //       passwordController.text.trim().isNotEmpty) {
-  //     try {
-  //       await authService.signInWithEmailAndPassword(
-  //         emailController.text.trim(),
-  //         passwordController.text.trim(),
-  //       );
-  //       Navigator.pushReplacement(
-  //         // ignore: use_build_context_synchronously
-  //         context,
-  //         MaterialPageRoute(builder: (context) => const MyHomePage()),
-  //       );
-  //     } on FirebaseAuthException catch (e) {
-  //       String errorMessage;
-  //       switch (e.code) {
-  //         case 'user-not-found':
-  //           errorMessage = 'No user found for that email.';
-  //           break;
-  //         case 'wrong-password':
-  //           errorMessage = 'Wrong password provided.';
-  //           break;
-  //         case 'invalid-email':
-  //           errorMessage = 'The email address is not valid.';
-  //           break;
-  //         default:
-  //           errorMessage = 'An error occurred. Please try again.';
-  //       }
-  //       showInfoSnachBar(errorMessage);
-  //     } catch (e) {
-  //       showInfoSnachBar('Invalid Credentials, try again!');
-  //     }
-  //   } else {
-  //     showInfoSnachBar('Both fields should be filled!');
-  //   }
-  // }
-
   void loginGoogle() async {
     try {
-      // Show loading
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) =>
-            const Center(child: CircularProgressIndicator(color: Colors.red)),
-      );
-      // Sign in
+      setState(() => _isLoading = true);
+
       User? user = await authService.signInWithGoogle();
-      // Close loading
-      if (mounted) {
-        // ignore: use_build_context_synchronously
-        Navigator.of(context).pop();
-      } else {
-        return; // Exit if the widget is not mounted
-      }
+
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+
       if (user == null) {
         showErrorSnachBar('Google Sign-In canceled');
         return;
       }
-      // Get profile or create it
-      PersonModel? profile = await FirebaseDB().getPersonProfile(user.uid);
+
+      final firebaseDB = FirebaseDB();
+      PersonModel? profile = await firebaseDB.getPersonProfile(user.uid);
+
       if (profile == null) {
         debugPrint('No profile found — creating new one...');
-        PersonModel personProfile = PersonModel.fromMap({
+        PersonModel newProfile = PersonModel.fromMap({
           'username': user.displayName ?? 'Unknown',
           'email': user.email ?? 'user@meditrack.com',
           'profilePicture': user.photoURL ?? '',
@@ -92,33 +47,37 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
         await FirebaseFirestore.instance
             .collection('persons')
             .doc(user.uid)
-            .set(personProfile.toMap());
+            .set(newProfile.toMap());
+
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => OnBoardingScreen(personProfile: newProfile),
+            ),
+          );
+        }
 
         showInfoSnachBar('Welcome ${user.displayName}, profile created!');
       } else {
         showSuccessSnachBar('Welcome back, ${profile.username}!');
-      }
-
-      // Navigate to onboarding or home
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const OnBoardingScreen()),
-        );
+        // You can navigate to home screen here if already onboarded
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => MyHomePage(),
+            ),
+          );
+        }
       }
     } catch (e) {
-      if (mounted) {
-        Navigator.of(context).pop();
-      } // Close dialog on error
       debugPrint('Google sign-in error: $e');
-      showErrorSnachBar('Error signing in with Google. Try again.');
+      if (mounted) {
+        setState(() => _isLoading = false);
+        showErrorSnachBar('Error signing in with Google. Try again.');
+      }
     }
-  }
-
-  @override
-  void initState() {
-    _isLoading = false;
-    super.initState();
   }
 
   @override
@@ -131,12 +90,11 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
         elevation: 0,
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Colors.red))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(12),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 50),
                   SizedBox(
@@ -148,7 +106,6 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
                     'MediTrack',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
                   ),
-                  
                   const SizedBox(height: 60),
                   ElevatedButton(
                     onPressed: loginGoogle,
@@ -160,7 +117,7 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
                           child: Image.asset('lib/Images/google_icon.png'),
                         ),
                         const SizedBox(width: 10),
-                        Text('Google Sign In'),
+                        const Text('Google Sign In'),
                       ],
                     ),
                   ),
