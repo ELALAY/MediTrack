@@ -38,7 +38,7 @@ class AuthService {
     return await firebaseAuth.signOut();
   }
 
-  signInwithGoogle() async {
+  signInWithGoogle() async {
     // begin interactive process of google sign in - google pop up
     final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
 
@@ -50,7 +50,7 @@ class AuthService {
 
     // Create new credential for our user
     final credential = GoogleAuthProvider.credential(
-      accessToken: gAuth.accessToken,
+      accessToken: gAuth.accessToken, 
       idToken: gAuth.idToken,
     );
 

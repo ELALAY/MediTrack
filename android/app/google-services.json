@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "580135829375-41sj0t10k5aain1d6j3bf5ob720clte7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.maditrack",
+            "certificate_hash": "744a0dfc855a431a555902c801b5622cb8d1ab4c"
+          }
+        },
+        {
           "client_id": "580135829375-0ppu665bkjjr97bntqq070si982lpgfi.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,6 +37,13 @@
             {
               "client_id": "580135829375-0ppu665bkjjr97bntqq070si982lpgfi.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "580135829375-g2tpil6m41cog7i5kuvi9hdubqn90oo2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.maditrack"
+              }
             }
           ]
         }

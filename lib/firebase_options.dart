@@ -70,7 +70,9 @@ class DefaultFirebaseOptions {
     messagingSenderId: '580135829375',
     projectId: 'meditrack-5ecbc',
     storageBucket: 'meditrack-5ecbc.firebasestorage.app',
+    androidClientId: '580135829375-41sj0t10k5aain1d6j3bf5ob720clte7.apps.googleusercontent.com',
     iosClientId: '580135829375-g2tpil6m41cog7i5kuvi9hdubqn90oo2.apps.googleusercontent.com',
     iosBundleId: 'com.example.maditrack',
   );
+
 }

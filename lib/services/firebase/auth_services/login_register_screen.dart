@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:maditrack/Models/person_model.dart';
-import 'package:maditrack/home.dart';
+import 'package:maditrack/Onboarding/onboarding.dart';
 import 'package:maditrack/services/firebase/fb_database/firebase_database_service.dart';
 import 'auth_service.dart';
 
@@ -18,43 +18,44 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   final AuthService authService = AuthService();
+  bool _isLoading = false;
 
-  void login() async {
-    if (emailController.text.trim().isNotEmpty &&
-        passwordController.text.trim().isNotEmpty) {
-      try {
-        await authService.signInWithEmailAndPassword(
-          emailController.text.trim(),
-          passwordController.text.trim(),
-        );
-        Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
-          context,
-          MaterialPageRoute(builder: (context) => const MyHomePage()),
-        );
-      } on FirebaseAuthException catch (e) {
-        String errorMessage;
-        switch (e.code) {
-          case 'user-not-found':
-            errorMessage = 'No user found for that email.';
-            break;
-          case 'wrong-password':
-            errorMessage = 'Wrong password provided.';
-            break;
-          case 'invalid-email':
-            errorMessage = 'The email address is not valid.';
-            break;
-          default:
-            errorMessage = 'An error occurred. Please try again.';
-        }
-        showInfoSnachBar(errorMessage);
-      } catch (e) {
-        showInfoSnachBar('Invalid Credentials, try again!');
-      }
-    } else {
-      showInfoSnachBar('Both fields should be filled!');
-    }
-  }
+  // void login() async {
+  //   if (emailController.text.trim().isNotEmpty &&
+  //       passwordController.text.trim().isNotEmpty) {
+  //     try {
+  //       await authService.signInWithEmailAndPassword(
+  //         emailController.text.trim(),
+  //         passwordController.text.trim(),
+  //       );
+  //       Navigator.pushReplacement(
+  //         // ignore: use_build_context_synchronously
+  //         context,
+  //         MaterialPageRoute(builder: (context) => const MyHomePage()),
+  //       );
+  //     } on FirebaseAuthException catch (e) {
+  //       String errorMessage;
+  //       switch (e.code) {
+  //         case 'user-not-found':
+  //           errorMessage = 'No user found for that email.';
+  //           break;
+  //         case 'wrong-password':
+  //           errorMessage = 'Wrong password provided.';
+  //           break;
+  //         case 'invalid-email':
+  //           errorMessage = 'The email address is not valid.';
+  //           break;
+  //         default:
+  //           errorMessage = 'An error occurred. Please try again.';
+  //       }
+  //       showInfoSnachBar(errorMessage);
+  //     } catch (e) {
+  //       showInfoSnachBar('Invalid Credentials, try again!');
+  //     }
+  //   } else {
+  //     showInfoSnachBar('Both fields should be filled!');
+  //   }
+  // }
 
   void loginGoogle() async {
     try {
@@ -62,20 +63,18 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (_) => const Center(
-          child: CircularProgressIndicator(color: Colors.red),
-        ),
+        builder: (_) =>
+            const Center(child: CircularProgressIndicator(color: Colors.red)),
       );
       // Sign in
-      User? user = await authService.signInwithGoogle();
+      User? user = await authService.signInWithGoogle();
       // Close loading
-      if(mounted) {
+      if (mounted) {
         // ignore: use_build_context_synchronously
         Navigator.of(context).pop();
       } else {
         return; // Exit if the widget is not mounted
       }
-      Navigator.of(context).pop();
       if (user == null) {
         showErrorSnachBar('Google Sign-In canceled');
         return;
@@ -85,10 +84,9 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
       if (profile == null) {
         debugPrint('No profile found — creating new one...');
         PersonModel personProfile = PersonModel.fromMap({
-          'username': user.displayName,
-          'email':user.email,
-          'profilePicture': user.photoURL
-          
+          'username': user.displayName ?? 'Unknown',
+          'email': user.email ?? 'user@meditrack.com',
+          'profilePicture': user.photoURL ?? '',
         }, user.uid);
 
         await FirebaseFirestore.instance
@@ -103,10 +101,10 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
 
       // Navigate to onboarding or home
       if (mounted) {
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(builder: (context) => const OnboardingScreen()),
-        // );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const OnBoardingScreen()),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -118,6 +116,12 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
   }
 
   @override
+  void initState() {
+    _isLoading = false;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -126,60 +130,43 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
         foregroundColor: Colors.black,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 50),
-            SizedBox(height: 150, child: Image.asset('lib/Images/login.gif')),
-            const SizedBox(height: 20),
-            const Text(
-              'Personal Wallet Tracker',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
-            ),
-            const SizedBox(height: 40),
-            GestureDetector(
-              onTap: (){},
-              child: const Row(
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(12),
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('Not a member?'),
-                  SizedBox(width: 5),
-                  Text(
-                    'Register Now!',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  const SizedBox(height: 50),
+                  SizedBox(
+                    height: 150,
+                    child: Image.asset('lib/Images/login.gif'),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'MediTrack',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+                  ),
+                  
+                  const SizedBox(height: 60),
+                  ElevatedButton(
+                    onPressed: loginGoogle,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 20,
+                          child: Image.asset('lib/Images/google_icon.png'),
+                        ),
+                        const SizedBox(width: 10),
+                        Text('Google Sign In'),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 30),
-            GestureDetector(
-              onTap: loginGoogle,
-              child: Container(
-                height: 100.0,
-                width: 100.0,
-                // padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.red, width: 2.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey,
-                      offset: Offset.fromDirection(1, 2),
-                      blurRadius: 2.0,
-                    ),
-                  ],
-                ),
-                child: Image.asset(
-                  'lib/Images/google_icon.png',
-                  // color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
