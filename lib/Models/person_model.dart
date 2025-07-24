@@ -10,6 +10,7 @@ class PersonModel {
   final double? weight; // in kg
   final Gender? gender;
   final List<String>? medicalConditions;
+  final List<String>? medications;
   final List<String>? allergies;
   final String? emergencyContact;
 
@@ -22,6 +23,7 @@ class PersonModel {
     this.weight,
     this.gender,
     this.medicalConditions,
+    this.medications,
     this.allergies,
     this.emergencyContact,
   }):id = '';
@@ -36,6 +38,7 @@ class PersonModel {
     this.weight,
     this.gender,
     this.medicalConditions,
+    this.medications,
     this.allergies,
     this.emergencyContact,
   });
@@ -66,7 +69,8 @@ class PersonModel {
       height: (map['height'] as num?)?.toDouble(),
       weight: (map['weight'] as num?)?.toDouble(),
       gender: _parseGender(map['gender']),
-      medicalConditions: List<String>.from(map['medicalConditions'] ?? []),
+      medicalConditions: List<String>.from(map['medicalConditions'] ?? []),      
+      medications: List<String>.from(map['medications'] ?? []),
       allergies: List<String>.from(map['allergies'] ?? []),
       emergencyContact: map['emergencyContact'],
     );

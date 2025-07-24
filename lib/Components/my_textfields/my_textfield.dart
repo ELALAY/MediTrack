@@ -5,7 +5,18 @@ class MyTextField extends StatefulWidget {
   final String label;
   final Color color;
   final bool enabled;
-  const MyTextField({super.key, required this.controller, required this.label, required this.color, required this.enabled});
+  final int? minLines;
+  final int? maxLines;
+
+  const MyTextField({
+    super.key,
+    required this.controller,
+    required this.label,
+    required this.color,
+    required this.enabled,
+    this.minLines,
+    this.maxLines,
+  });
 
   @override
   State<MyTextField> createState() => _MyTextFieldState();
@@ -19,7 +30,11 @@ class _MyTextFieldState extends State<MyTextField> {
       child: TextField(
         controller: widget.controller,
         enabled: widget.enabled,
-        decoration:  InputDecoration(
+        minLines: 3,
+        maxLines: 6,
+        textCapitalization: TextCapitalization.sentences,
+        decoration: InputDecoration(
+          hint: Text(widget.label),
           border: OutlineInputBorder(
             borderSide: BorderSide(color: widget.color),
           ),
